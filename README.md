@@ -1,4 +1,4 @@
-# How to run Kokoro TTS offline without triggering the Network Issue 
+# How to run Kokoro TTS offline without triggering the Network Error 
 
 Patch for running [Kokoro TTS](https://github.com/hexgrad/kokoro) fully offline by loading model weights
 and config from a local directory instead of downloading from HuggingFace Hub on every run.
