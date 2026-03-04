@@ -39,6 +39,7 @@ models/tts_kokoro/
 └── voices/
     ├── af_heart.pt
     ├── af_bella.pt
+    ├── am_michael.pt
     └── <any other voices>.pt
 ```
 
