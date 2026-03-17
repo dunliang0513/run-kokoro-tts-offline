@@ -59,38 +59,66 @@ find .venv -path "*/kokoro/model.py"
 find .venv -path "*/kokoro/pipeline.py"
 ```
 
-### 3. Replace with the patched files
+### 3. Apply Patched Files
 
-Copy the patched files from this repo into the paths found above:
+Copy the patched `model.py` and `pipeline.py` into your virtual environment:
 
 ```bash
-cp model.py /path/to/.venv/lib/python3.10/site-packages/kokoro/model.py
-cp pipeline.py /path/to/.venv/lib/python3.10/site-packages/kokoro/pipeline.py
+cp model.py pipeline.py .venv/lib/python3.10/site-packages/kokoro/
 ```
 
-### 4. Update the local model path
+**Note:** The exact path may vary. Find it with:
+```bash
+python -c "import kokoro; print(kokoro.__file__)"
+cd $(dirname $(dirname $(python -c "import kokoro; print(kokoro.__file__)")))
+```
 
-In `model.py`, update `DEFAULT_LOCAL_MODEL_DIR` to match your setup:
+### 4. Configure Local Model Paths
 
+The patched files use **automatic path detection** that walks up from the installed package location to find your project root containing `models/tts_kokoro/`.
+
+**Primary method (automatic):**
 ```python
-DEFAULT_LOCAL_MODEL_DIR = '/your/path/to/models/tts_kokoro'
+# Already included in patched files - no action needed!
+# Walks up until it finds models/tts_kokoro/voices → /home/och/Demo/models/tts_kokoro
 ```
 
-In `pipeline.py`, update `DEFAULT_LOCAL_VOICES_DIR` to match your setup:
+**Manual override (backup):**
+If automatic detection fails (e.g., unusual project layout), set the hardcoded fallback:
 
+In `model.py`:
 ```python
-DEFAULT_LOCAL_VOICES_DIR = '/your/path/to/models/tts_kokoro/voices'
+# Fallback path - change to your actual project root
+PROJECT_ROOT = pathlib.Path("/home/och/Demo")  # ← Update this line only if needed
+
+DEFAULT_LOCAL_MODEL_DIR = PROJECT_ROOT / "models" / "tts_kokoro"
 ```
 
-### 5. Verify offline inference
+In `pipeline.py`:
+```python
+PROJECT_ROOT = pathlib.Path("/home/och/Demo")  # ← Update this line only if needed
 
-Disconnect from the network and run your TTS pipeline. You should see log output like:
+DEFAULT_LOCAL_VOICES_DIR = PROJECT_ROOT / "models" / "tts_kokoro" / "voices"
+```
 
+### 5. Verify the Paths
+
+Test the resolution:
+```bash
+source .venv/bin/activate
+python -c "
+import kokoro.model as m; print('Model dir:', m.DEFAULT_LOCAL_MODEL_DIR)
+import kokoro.pipeline as p; print('Voices dir:', p.DEFAULT_LOCAL_VOICES_DIR)
+"
 ```
-DEBUG | Loading config from local path: /your/path/models/tts_kokoro/config.json
-DEBUG | Loading model weights from local path: /your/path/models/tts_kokoro/kokoro-v1_0.pth
-DEBUG | Loading voice from local path: /your/path/models/tts_kokoro/voices/af_heart.pt
+
+Expected output:
 ```
+/home/och/Demo/models/tts_kokoro
+/home/och/Demo/models/tts_kokoro/voices
+```
+
+The manual paths are only used as a **fallback** if the automatic detection can't find the `models/tts_kokoro` directory anywhere in the parent chain.
 
 ## Notes
 

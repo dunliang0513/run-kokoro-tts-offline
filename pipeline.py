@@ -6,10 +6,22 @@ from typing import Callable, Generator, List, Optional, Tuple, Union
 import os
 import re
 import torch
-
+import pathlib
 
 # Default local voices directory
-DEFAULT_LOCAL_VOICES_DIR = '/home/och/kinara-jetson-vlm-distributed-pipeline/models/tts_kokoro/voices'
+# Walk up from installed package location until we find project root with models/
+HERE = pathlib.Path(__file__).resolve()
+for parent in HERE.parents:
+    if (parent / "models" / "tts_kokoro" / "voices").is_dir():
+        PROJECT_ROOT = parent
+        break
+else:
+    # Fallback to your fixed Demo path        
+    # Can update the path below according to the actual directory
+    PROJECT_ROOT = pathlib.Path("/home/och/Demo")
+
+DEFAULT_LOCAL_VOICES_DIR = PROJECT_ROOT / "models" / "tts_kokoro" / "voices"
+DEFAULT_LOCAL_VOICES_DIR = str(DEFAULT_LOCAL_VOICES_DIR)
 
 
 ALIASES = {

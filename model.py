@@ -9,11 +9,19 @@ from typing import Dict, Optional, Union
 import json
 import os
 import torch
+import pathlib
 
-
-# EXAMPLE MODEL PATH
-# UPDATED THE CORRECT PATH HERE
-DEFAULT_LOCAL_MODEL_DIR = '/home/och/kinara-jetson-vlm-distributed-pipeline/models/tts_kokoro'
+# this file lives in: /home/och/Demo/.venv/.../site-packages/kokoro/...
+HERE = pathlib.Path(__file__).resolve()
+# Go up until we find the project marker (here: the directory that has `models`)
+for parent in HERE.parents:
+    if (parent / "models" / "tts_kokoro").is_dir():
+        PROJECT_ROOT = parent
+        break
+else:
+    # Fallback: default to the user home Demo dir
+    # Can update the path below according to the actual directory
+    PROJECT_ROOT = pathlib.Path("/home/och/Demo")
 
 
 class KModel(torch.nn.Module):
